@@ -2,8 +2,8 @@
 // CONFIGURACIÓN — CAMBIA ESTO ANTES DE PUBLICAR
 // ===================================================
 const EDITORS = [
-  { user: "admin",   pass: "tuPassword1" },   // ← TÚ
-  { user: "editor2", pass: "tuPassword2" }    // ← SEGUNDA PERSONA
+  { user: "Marius",   pass: "Elcoletas13" },   // ← TÚ
+  { user: "Arnau", pass: "Mishi-2009" }    // ← SEGUNDA PERSONA
 ];
 // ===================================================
 
