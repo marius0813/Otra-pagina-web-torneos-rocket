@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RL Tournament Hub</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="[cdnjs.cloudflare.com](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css)"/>
+</head>
+<body>
+  <!-- LOGIN MODAL -->
+  <div id="loginModal" class="modal hidden">
+    <div class="modal-box">
+      <h2><i class="fa-solid fa-rocket"></i> Editor Login</h2>
+      <input type="text" id="loginUser" placeholder="Usuario" />
+      <input type="password" id="loginPass" placeholder="Contraseña" />
+      <button onclick="doLogin()">Entrar</button>
+      <p id="loginError" class="error hidden">Credenciales incorrectas</p>
+      <span class="close-modal" onclick="closeLogin()">✕</span>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-left">
+      <span class="logo"><i class="fa-solid fa-rocket"></i> RL Tournament Hub</span>
+    </div>
+    <nav>
+      <button class="nav-btn active" onclick="showTab('stats')"><i class="fa-solid fa-chart-line"></i> Stats</button>
+      <button class="nav-btn" onclick="showTab('players')"><i class="fa-solid fa-users"></i> Jugadores</button>
+      <button class="nav-btn" onclick="showTab('tournaments')"><i class="fa-solid fa-trophy"></i> Torneos</button>
+      <button class="nav-btn" onclick="showTab('matches')"><i class="fa-solid fa-gamepad"></i> Partidos</button>
+    </nav>
+    <div class="header-right">
+      <span id="editorBadge" class="badge hidden"><i class="fa-solid fa-pen"></i> Editor</span>
+      <button id="loginBtn" class="btn-login" onclick="openLogin()"><i class="fa-solid fa-lock"></i> Editor</button>
+      <button id="logoutBtn" class="btn-login hidden" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- ===== STATS TAB ===== -->
+    <section id="tab-stats" class="tab active">
+      <h1>📊 Estadísticas Generales</h1>
+      <div class="stats-grid" id="globalStatsGrid"></div>
+      <div class="two-col">
+        <div class="card">
+          <h3>🏆 Top Jugadores (Victorias)</h3>
+          <div id="topWinners"></div>
+        </div>
+        <div class="card">
+          <h3>🎯 Torneos Recientes</h3>
+          <div id="recentTournaments"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>📈 Rendimiento por Jugador</h3>
+        <div id="playerPerformance"></div>
+      </div>
+    </section>
+
+    <!-- ===== PLAYERS TAB ===== -->
+    <section id="tab-players" class="tab">
+      <div class="tab-header">
+        <h1>👥 Jugadores</h1>
+        <button class="btn-add editor-only hidden" onclick="openPlayerForm()"><i class="fa-solid fa-plus"></i> Añadir Jugador</button>
+      </div>
+
+      <!-- Player Form -->
+      <div id="playerForm" class="form-card hidden">
+        <h3 id="playerFormTitle">Nuevo Jugador</h3>
+        <div class="form-grid">
+          <input type="hidden" id="editPlayerId"/>
+          <div class="form-group">
+            <label>Nombre / Tag</label>
+            <input type="text" id="pName" placeholder="xX_NitroBoost_Xx"/>
+          </div>
+          <div class="form-group">
+            <label>Plataforma</label>
+            <select id="pPlatform">
+              <option>PC (Steam)</option>
+              <option>PC (Epic)</option>
+              <option>PlayStation</option>
+              <option>Xbox</option>
+              <option>Switch</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Rango actual</label>
+            <select id="pRank">
+              <option>Bronze</option><option>Silver</option><option>Gold</option>
+              <option>Platinum</option><option>Diamond</option><option>Champion</option>
+              <option>Grand Champion</option><option>Supersonic Legend</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Equipo / Etiqueta</label>
+            <input type="text" id="pTeam" placeholder="Mi Equipo / Rival..."/>
+          </div>
+          <div class="form-group">
+            <label>RL Tracker URL</label>
+            <input type="url" id="pTracker" placeholder="[rocketleague.tracker.network](https://rocketleague.tracker.network/)"/>
+          </div>
+          <div class="form-group">
+            <label>Notas</label>
+            <input type="text" id="pNotes" placeholder="Notas opcionales"/>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-save" onclick="savePlayer()">Guardar</button>
+          <button class="btn-cancel" onclick="closePlayerForm()">Cancelar</button>
+        </div>
+      </div>
+
+      <div id="playersList" class="players-grid"></div>
+    </section>
+
+    <!-- ===== TOURNAMENTS TAB ===== -->
+    <section id="tab-tournaments" class="tab">
+      <div class="tab-header">
+        <h1>🏆 Torneos</h1>
+        <button class="btn-add editor-only hidden" onclick="openTournamentForm()"><i class="fa-solid fa-plus"></i> Crear Torneo</button>
+      </div>
+
+      <div id="tournamentForm" class="form-card hidden">
+        <h3 id="tournamentFormTitle">Nuevo Torneo</h3>
+        <div class="form-grid">
+          <input type="hidden" id="editTournamentId"/>
+          <div class="form-group">
+            <label>Nombre del torneo</label>
+            <input type="text" id="tName" placeholder="Copa Rocket #1"/>
+          </div>
+          <div class="form-group">
+            <label>Formato</label>
+            <select id="tFormat">
+              <option>Eliminación directa (1v1)</option>
+              <option>Eliminación directa (2v2)</option>
+              <option>Eliminación directa (3v3)</option>
+              <option>Doble eliminación (1v1)</option>
+              <option>Doble eliminación (2v2)</option>
+              <option>Doble eliminación (3v3)</option>
+              <option>Liga / Round Robin</option>
+              <option>Swiss</option>
+              <option>Personalizado</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Fecha inicio</label>
+            <input type="date" id="tDate"/>
+          </div>
+          <div class="form-group">
+            <label>Estado</label>
+            <select id="tStatus">
+              <option>Próximo</option>
+              <option>En curso</option>
+              <option>Finalizado</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Premio / Descripción</label>
+            <input type="text" id="tPrize" placeholder="Descripción del torneo..."/>
+          </div>
+          <div class="form-group">
+            <label>Imagen URL (banner)</label>
+            <input type="url" id="tImage" placeholder="https://..."/>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-save" onclick="saveTournament()">Guardar</button>
+          <button class="btn-cancel" onclick="closeTournamentForm()">Cancelar</button>
+        </div>
+      </div>
+
+      <div id="tournamentsList"></div>
+    </section>
+
+    <!-- ===== MATCHES TAB ===== -->
+    <section id="tab-matches" class="tab">
+      <div class="tab-header">
+        <h1>🎮 Partidos</h1>
+        <button class="btn-add editor-only hidden" onclick="openMatchForm()"><i class="fa-solid fa-plus"></i> Añadir Partido</button>
+      </div>
+
+      <div id="matchForm" class="form-card hidden">
+        <h3 id="matchFormTitle">Nuevo Partido</h3>
+        <input type="hidden" id="editMatchId"/>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Torneo</label>
+            <select id="mTournament"></select>
+          </div>
+          <div class="form-group">
+            <label>Ronda / Fase</label>
+            <input type="text" id="mRound" placeholder="Cuartos de final, Grupo A..."/>
+          </div>
+          <div class="form-group">
+            <label>Fecha</label>
+            <input type="datetime-local" id="mDate"/>
+          </div>
+          <div class="form-group">
+            <label>Equipo / Jugador A</label>
+            <input type="text" id="mTeamA" placeholder="Nombre equipo A"/>
+          </div>
+          <div class="form-group">
+            <label>Equipo / Jugador B</label>
+            <input type="text" id="mTeamB" placeholder="Nombre equipo B"/>
+          </div>
+          <div class="form-group">
+            <label>Resultado A</label>
+            <input type="number" id="mScoreA" min="0" placeholder="0"/>
+          </div>
+          <div class="form-group">
+            <label>Resultado B</label>
+            <input type="number" id="mScoreB" min="0" placeholder="0"/>
+          </div>
+          <div class="form-group">
+            <label>Jugadores participantes</label>
+            <input type="text" id="mPlayers" placeholder="Tag1, Tag2, Tag3..."/>
+          </div>
+          <div class="form-group">
+            <label>Goles / Stats resumen</label>
+            <input type="text" id="mStats" placeholder="Goles, asist., paradas clave..."/>
+          </div>
+          <div class="form-group">
+            <label>URL Imagen / Captura</label>
+            <input type="url" id="mImage" placeholder="https://..."/>
+          </div>
+        </div>
+        <div class="form-group full-width">
+          <label>Sensaciones / Notas del partido</label>
+          <textarea id="mNotes" rows="4" placeholder="¿Cómo fue el partido? ¿Jugadas destacadas?"></textarea>
+        </div>
+        <div class="form-actions">
+          <button class="btn-save" onclick="saveMatch()">Guardar</button>
+          <button class="btn-cancel" onclick="closeMatchForm()">Cancelar</button>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="filters">
+        <select id="filterTournament" onchange="renderMatches()">
+          <option value="">Todos los torneos</option>
+        </select>
+      </div>
+
+      <div id="matchesList"></div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>RL Tournament Hub · Hecho con <i class="fa-solid fa-heart"></i> para la comunidad Rocket League</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
